@@ -59,45 +59,74 @@ class App {
     #ts = new TaskStore();
 
     constructor() {
-        this.taskList = document.getElementById("taskList");
-        document.getElementById("newTaskField").addEventListener('keydown', this.newTask);
+        this.taskList = document.querySelector("#taskList");
+        this.newTaskField = document.querySelector("#addTaskField");
+
+        this.newTaskField.addEventListener('keydown', this.newTask);
+        document.querySelector('#addTaskBtn').addEventListener("click", this.newTask);
     }
 
 
     newListItem(task) {
         const item = document.createElement('div');
-        item.innerHTML = `<span>${task.title}</span>`
         item.classList.add('task-item');
         item.dataset.id = task.id;
 
-        const delBtn = document.createElement('button');
-        delBtn.textContent = 'x';
-        delBtn.onclick = this.removeTask;
-        item.appendChild(delBtn);
+        const info = document.createElement('div');
+        info.classList.add('task-info');
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.classList.add('task-status');
+        checkbox.title = 'Mark as done';
+        if(task.status) {
+            checkbox.checked = true;
+        }
+        info.appendChild(checkbox);
+
+        const itemTitle = document.createElement('div');
+        itemTitle.classList.add('task-title');
+        itemTitle.textContent = task.title;
+        info.appendChild(itemTitle);
+
+        item.appendChild(info);
+
+        const control = document.createElement('div');
+        control.classList.add('task-control');
+
+        const btnDel = document.createElement('button');
+        btnDel.classList.add('btn', 'btn-delete');
+        btnDel.title = 'Delete task';
+        btnDel.textContent = 'x';
+        // TODO: add action on delete button
+        // btnDel.click = this.removeTask;
+        control.appendChild(btnDel);
+        item.appendChild(control);
 
         return item;
     }
 
 
     newTask = (e) => {
-        if (e.key === 'Enter') {
-            const title = e.target.value;
-            if (title.length !== 0) {
-                const task = this.#ts.add(title);
-                const item = this.newListItem(task);
-                this.taskList.appendChild(item);
-            }
-            e.target.value = '';
-        } else if (e.key === 'Esc') {
-            e.target.blur();
+        switch (e.type) {
+            case 'keydown':
+                if (e.key !== 'Enter') { return; }
+                // fallthrough
+
+            case 'click':
+                const title = this.newTaskField.value;
+                if(title !== '') {
+                    this.newTaskField.value = '';
+                    const task = this.#ts.add(title);
+                    const item = this.newListItem(task);
+                    this.taskList.appendChild(item);
+                }
+                break;
         }
     }
 
     removeTask = (e) => {
-        const id = e.target.parentElement.dataset.id;
-        if (this.#ts.remove(id)) {
-            this.taskList.removeChild(e.target.parentElement);
-        }
+        // TODO: remove the task
     }
 }
 
