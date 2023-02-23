@@ -82,6 +82,7 @@ class App {
         if(task.status) {
             checkbox.checked = true;
         }
+        checkbox.dataset.id = task.id;
         info.appendChild(checkbox);
 
         const itemTitle = document.createElement('div');
@@ -98,8 +99,9 @@ class App {
         btnDel.classList.add('btn', 'btn-delete');
         btnDel.title = 'Delete task';
         btnDel.textContent = 'x';
-        // TODO: add action on delete button
-        // btnDel.click = this.removeTask;
+        btnDel.dataset.id = task.id;
+        btnDel.addEventListener('click', this.removeTask);
+
         control.appendChild(btnDel);
         item.appendChild(control);
 
@@ -126,7 +128,11 @@ class App {
     }
 
     removeTask = (e) => {
-        // TODO: remove the task
+        const id = e.target.dataset.id
+        if(this.#ts.remove(id)) {
+            const task = this.taskList.querySelector(`.task-item[data-id="${id}"]`);
+            this.taskList.removeChild(task);
+        }
     }
 }
 
