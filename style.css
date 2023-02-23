@@ -82,6 +82,8 @@ main h1 {
 
 .task-item .task-status:checked + .task-title {
     text-decoration: line-through;
+    font-style: italic;
+    color: #707070;
 }
 
 .task-item .task-status:checked {
