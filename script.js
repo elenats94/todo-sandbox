@@ -83,6 +83,7 @@ class App {
             checkbox.checked = true;
         }
         checkbox.dataset.id = task.id;
+        checkbox.addEventListener('change', this.toggleTaskStatus)
         info.appendChild(checkbox);
 
         const itemTitle = document.createElement('div');
@@ -133,6 +134,11 @@ class App {
             const task = this.taskList.querySelector(`.task-item[data-id="${id}"]`);
             this.taskList.removeChild(task);
         }
+    }
+
+    toggleTaskStatus = (e) => {
+        const id = e.target.dataset.id;
+        this.#ts.toggleStatus(id);
     }
 }
 
