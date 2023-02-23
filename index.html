@@ -2,24 +2,63 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sand boxing =)</title>
-    <style>
-        .task-item {
-            background-color: #ccc;
-            padding: 10px 15px;
-            margin: 10px 0;
-            width: 500px;
-            display: flex;
-            justify-content: space-between;
-        }
-    </style>
+    <title>To-Do list</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div>
-        <input type="text" id="newTaskField">
+<main>
+    <h1>To-Do list</h1>
+    <div class="new-task">
+        <input type="text" class="text-field" id="addTaskField" placeholder="Add task">
+        <button class="btn btn-add" id="addTaskBtn">Add</button>
     </div>
-    <div id="taskList"></div>
-
-    <script src="script.js"></script>
+    <div class="task-list" id="taskList">
+        <div class="task-item">
+            <div class="task-info">
+                <input type="checkbox" class="task-status" title="Mark as done">
+                <div class="task-title">Task 1</div>
+            </div>
+            <div class="task-control">
+                <button class="btn btn-delete" title="Delete task">x</button>
+            </div>
+        </div>
+        <div class="task-item">
+            <div class="task-info">
+                <input type="checkbox" class="task-status" title="Mark as done">
+                <div class="task-title">Task 2</div>
+            </div>
+            <div class="task-control">
+                <button class="btn btn-delete" title="Delete task">x</button>
+            </div>
+        </div>
+        <div class="task-item">
+            <div class="task-info">
+                <input type="checkbox" class="task-status" title="Mark as done">
+                <div class="task-title">Task 3</div>
+            </div>
+            <div class="task-control">
+                <button class="btn btn-delete" title="Delete task">x</button>
+            </div>
+        </div>
+        <div class="task-item">
+            <div class="task-info">
+                <input type="checkbox" class="task-status" title="Mark as done">
+                <div class="task-title">Task 4</div>
+            </div>
+            <div class="task-control">
+                <button class="btn btn-delete" title="Delete task">x</button>
+            </div>
+        </div>
+        <div class="task-item">
+            <div class="task-info">
+                <input type="checkbox" class="task-status" title="Mark as done">
+                <div class="task-title">Task 5</div>
+            </div>
+            <div class="task-control">
+                <button class="btn btn-delete" title="Delete task">x</button>
+            </div>
+        </div>
+    </div>
+</main>
 </body>
 </html>
