@@ -34,7 +34,7 @@ main h1 {
     margin-bottom: 20px;
 }
 
-.new-task .text-field {
+.text-field {
     flex-grow: 1;
     margin-right: 10px;
     padding: 10px;
@@ -45,7 +45,7 @@ main h1 {
     font-size: 14px;
 }
 
-.new-task .text-field:focus {
+.text-field:focus {
     outline: none;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
 }
@@ -64,6 +64,7 @@ main h1 {
 }
 
 .task-item .task-info {
+    flex-grow: 1;
     display: flex;
     align-items: center;
 }
@@ -107,4 +108,8 @@ main h1 {
 
 .task-control .btn-delete {
     background-color: #505050;
+}
+
+.task-control .btn-edit {
+    background-color: #606060;
 }

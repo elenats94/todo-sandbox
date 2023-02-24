@@ -33,6 +33,13 @@ class TaskStore {
         return store;
     }
 
+    get(id) {
+        if(this.#store.has(id)) {
+            return this.#store.get(id);
+        }
+        return null;
+    }
+
     add(title) {
         if (title.length !== 0) {
             const id = this.#idGen.generate();
@@ -102,10 +109,18 @@ class App {
         const control = document.createElement('div');
         control.classList.add('task-control');
 
+        const btnEdit = document.createElement('button');
+        btnEdit.classList.add('btn', 'btn-edit');
+        btnEdit.title = 'Edit task';
+        btnEdit.textContent = 'edit'
+        btnEdit.dataset.id = task.id;
+        btnEdit.addEventListener('click', this.showEditField);
+        control.appendChild(btnEdit);
+
         const btnDel = document.createElement('button');
         btnDel.classList.add('btn', 'btn-delete');
         btnDel.title = 'Delete task';
-        btnDel.textContent = 'x';
+        btnDel.textContent = 'delete';
         btnDel.dataset.id = task.id;
         btnDel.addEventListener('click', this.removeTask);
 
@@ -145,6 +160,28 @@ class App {
     toggleTaskStatus = (e) => {
         const id = e.target.dataset.id;
         this.#ts.toggleStatus(id);
+    }
+
+    showEditField = (e) => {
+        const task = this.#ts.get(e.target.dataset.id);
+
+        const editField = document.createElement('input');
+        editField.type = 'text';
+        editField.classList.add('text-field');
+        editField.dataset.id = task.id;
+        editField.value = task.title;
+        editField.onkeydown = this.editTask;
+
+        const item = this.taskList.querySelector(`.task-item[data-id="${task.id}"]`);
+
+        item.replaceChildren(editField);
+        editField.select();
+    }
+
+    editTask = (e) => {
+        if(e.key === 'Enter') {
+            console.log(`Editing task: ${e.target.dataset.id}`);
+        }
     }
 }
 
