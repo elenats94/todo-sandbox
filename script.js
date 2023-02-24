@@ -53,6 +53,12 @@ class TaskStore {
             task.status = !task.status;
         }
     }
+
+    edit(id, newTitle) {
+        if(this.#store.has(id)) {
+            this.#store.get(id).title = newTitle;
+        }
+    }
 }
 
 class App {
