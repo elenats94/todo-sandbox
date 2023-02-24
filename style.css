@@ -18,6 +18,13 @@ main {
     background-color: #252525;
 }
 
+.btn {
+    padding: 10px;
+    border: none;
+    color: #fefefe;
+    cursor: pointer;
+}
+
 main h1 {
     margin-bottom: 20px;
 }
@@ -44,11 +51,7 @@ main h1 {
 }
 
 .new-task .btn-add {
-    padding: 10px;
-    border: none;
     background-color: #4caf50;
-    color: #fefefe;
-    cursor: pointer;
 }
 
 .task-item {
@@ -66,7 +69,9 @@ main h1 {
 }
 
 .task-item .task-title {
-    margin: 0 10px;
+    margin: 0 15px;
+    max-width: 90%;
+    text-align: justify;
 }
 
 .task-item .task-status {
@@ -101,9 +106,5 @@ main h1 {
 }
 
 .task-control .btn-delete {
-    padding: 10px;
-    border: none;
     background-color: #505050;
-    color: #fefefe;
-    cursor: pointer;
 }
