@@ -63,7 +63,9 @@ class TaskStore {
 
     edit(id, newTitle) {
         if(this.#store.has(id)) {
-            this.#store.get(id).title = newTitle;
+            const task = this.#store.get(id);
+            task.title = newTitle;
+            return task;
         }
     }
 }
@@ -170,7 +172,7 @@ class App {
         editField.classList.add('text-field');
         editField.dataset.id = task.id;
         editField.value = task.title;
-        editField.onkeydown = this.editTask;
+        editField.addEventListener('keydown', this.editTask);
 
         const item = this.taskList.querySelector(`.task-item[data-id="${task.id}"]`);
 
@@ -179,8 +181,19 @@ class App {
     }
 
     editTask = (e) => {
-        if(e.key === 'Enter') {
-            console.log(`Editing task: ${e.target.dataset.id}`);
+        const id = e.target.dataset.id;
+        let task;
+
+        switch (e.key) {
+            case 'Enter':
+                const newTitle = e.target.value;
+                task = this.#ts.edit(id, newTitle);
+                // fallthrough
+            case 'Esc':
+            case 'Escape':
+                task = this.#ts.get(id);
+                const updatedItem = this.newListItem(task);
+                this.taskList.replaceChild(updatedItem, e.target.parentElement);
         }
     }
 }
