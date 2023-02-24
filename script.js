@@ -34,7 +34,7 @@ class TaskStore {
     }
 
     get(id) {
-        if(this.#store.has(id)) {
+        if (this.#store.has(id)) {
             return this.#store.get(id);
         }
         return null;
@@ -62,7 +62,7 @@ class TaskStore {
     }
 
     edit(id, newTitle) {
-        if(this.#store.has(id)) {
+        if (this.#store.has(id)) {
             const task = this.#store.get(id);
             task.title = newTitle;
             return task;
@@ -94,7 +94,7 @@ class App {
         checkbox.type = 'checkbox';
         checkbox.classList.add('task-status');
         checkbox.title = 'Mark as done';
-        if(task.status) {
+        if (task.status) {
             checkbox.checked = true;
         }
         checkbox.dataset.id = task.id;
@@ -132,16 +132,22 @@ class App {
         return item;
     }
 
+    getListItem(id) {
+        return this.taskList.querySelector(`.task-item[data-id="${id}"]`);
+    }
+
 
     newTask = (e) => {
         switch (e.type) {
             case 'keydown':
-                if (e.key !== 'Enter') { return; }
-                // fallthrough
+                if (e.key !== 'Enter') {
+                    return;
+                }
+            // fallthrough
 
             case 'click':
                 const title = this.newTaskField.value;
-                if(title !== '') {
+                if (title !== '') {
                     this.newTaskField.value = '';
                     const task = this.#ts.add(title);
                     const item = this.newListItem(task);
@@ -153,8 +159,8 @@ class App {
 
     removeTask = (e) => {
         const id = e.target.dataset.id
-        if(this.#ts.remove(id)) {
-            const task = this.taskList.querySelector(`.task-item[data-id="${id}"]`);
+        if (this.#ts.remove(id)) {
+            const task = this.getListItem(id);
             this.taskList.removeChild(task);
         }
     }
@@ -162,6 +168,8 @@ class App {
     toggleTaskStatus = (e) => {
         const id = e.target.dataset.id;
         this.#ts.toggleStatus(id);
+
+        this.getListItem(id).querySelector(`.btn-edit`).hidden = e.target.checked;
     }
 
     showEditField = (e) => {
@@ -174,7 +182,7 @@ class App {
         editField.value = task.title;
         editField.addEventListener('keydown', this.editTask);
 
-        const item = this.taskList.querySelector(`.task-item[data-id="${task.id}"]`);
+        const item = this.getListItem(task.id);
 
         item.replaceChildren(editField);
         editField.select();
@@ -188,7 +196,7 @@ class App {
             case 'Enter':
                 const newTitle = e.target.value;
                 task = this.#ts.edit(id, newTitle);
-                // fallthrough
+            // fallthrough
             case 'Esc':
             case 'Escape':
                 task = this.#ts.get(id);
@@ -198,4 +206,4 @@ class App {
     }
 }
 
-const app = new App();
+document.addEventListener('DOMContentLoaded', () => new App());

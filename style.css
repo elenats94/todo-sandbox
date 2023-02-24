@@ -45,6 +45,10 @@ main h1 {
     font-size: 14px;
 }
 
+.text-field::selection {
+    background-color: #f95b00;
+}
+
 .text-field:focus {
     outline: none;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
