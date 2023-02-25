@@ -1,25 +1,16 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	"log"
+	"os"
+	"todo-sandbox/internal/app"
 )
 
 func main() {
-	router := gin.Default()
-
-	tasks := router.Group("/tasks")
-	{
-		tasks.GET("", list)
-		tasks.POST("", create)
-		single := tasks.Group("/:id")
-		{
-			single.GET("", get)
-			single.PUT("", edit)
-			single.PATCH("", toggleStatus)
-			single.DELETE("", remove)
-		}
+	addr := os.Getenv("APP_ADDR")
+	if len(addr) == 0 {
+		log.Fatal("$SERVER_ADDR is not set")
 	}
 
-	log.Fatal(router.Run())
+	log.Fatal(app.NewApp().Run(addr))
 }
