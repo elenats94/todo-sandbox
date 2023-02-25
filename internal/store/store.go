@@ -5,6 +5,8 @@ import (
 	"github.com/google/uuid"
 )
 
+var errNotFound = errors.New("task not found")
+
 type Task struct {
 	ID     uuid.UUID `json:"id"`
 	Title  string    `json:"title"`
@@ -12,36 +14,33 @@ type Task struct {
 }
 
 type Store struct {
-	db map[string]*Task
+	db []*Task
 }
 
 func NewStore() *Store {
 	return &Store{
-		db: make(map[string]*Task),
+		db: make([]*Task, 0),
 	}
 }
 
 func (s *Store) ListTasks() ([]*Task, error) {
-	list := make([]*Task, 0, len(s.db))
-	for _, task := range s.db {
-		list = append(list, task)
-	}
-
-	return list, nil
+	return s.db, nil
 }
 
 func (s *Store) GetTaskByID(id uuid.UUID) (*Task, error) {
-	if task, ok := s.db[id.String()]; ok {
-		return task, nil
+	for _, task := range s.db {
+		if task.ID == id {
+			return task, nil
+		}
 	}
 
-	return nil, errors.New("task not found")
+	return nil, errNotFound
 }
 
 func (s *Store) CreateTask(title string) (*Task, error) {
 	id := uuid.New()
 	task := &Task{ID: id, Title: title}
-	s.db[id.String()] = task
+	s.db = append(s.db, task)
 
 	return task, nil
 }
@@ -67,11 +66,12 @@ func (s *Store) ToggleStatus(id uuid.UUID) (*Task, error) {
 }
 
 func (s *Store) DeleteTask(id uuid.UUID) (*Task, error) {
-	task, err := s.GetTaskByID(id)
-	if err != nil {
-		return nil, err
+	for i, task := range s.db {
+		if task.ID == id {
+			s.db = append(s.db[:i], s.db[i+1:]...)
+			return task, nil
+		}
 	}
 
-	delete(s.db, id.String())
-	return task, nil
+	return nil, errNotFound
 }
