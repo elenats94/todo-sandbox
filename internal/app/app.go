@@ -1,11 +1,18 @@
 package app
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"todo-sandbox/internal/store"
+)
 
-type App struct{}
+type App struct {
+	storage *store.Store
+}
 
 func NewApp() *App {
-	return &App{}
+	return &App{
+		storage: store.NewStore(),
+	}
 }
 
 func (app *App) Run(addr string) error {
