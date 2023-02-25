@@ -6,9 +6,9 @@ import (
 )
 
 type Task struct {
-	ID     uuid.UUID
-	Title  string
-	Status bool
+	ID     uuid.UUID `json:"id"`
+	Title  string    `json:"title"`
+	Status bool      `json:"status"`
 }
 
 type Store struct {
