@@ -9,7 +9,7 @@ import (
 func main() {
 	addr := os.Getenv("APP_ADDR")
 	if len(addr) == 0 {
-		log.Fatal("$SERVER_ADDR is not set")
+		log.Fatal("$APP_ADDR is not set")
 	}
 
 	log.Fatal(app.NewApp().Run(addr))
