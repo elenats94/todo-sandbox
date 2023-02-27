@@ -9,22 +9,27 @@ import (
 var errNotFound = errors.New("task not found")
 
 type Store struct {
-	db []*models.Task
+	db map[uuid.UUID]models.Tasks
 }
 
 func NewStore() *Store {
 	return &Store{
-		db: make([]*models.Task, 0),
+		db: make(map[uuid.UUID]models.Tasks),
 	}
 }
 
-func (s *Store) ListTasks() ([]*models.Task, error) {
-	return s.db, nil
+func (s *Store) ListTasks(owner uuid.UUID) (models.Tasks, error) {
+	return s.db[owner], nil
 }
 
-func (s *Store) GetTaskByID(id uuid.UUID) (*models.Task, error) {
-	for _, task := range s.db {
-		if task.ID == id {
+func (s *Store) GetTaskByID(taskID, owner uuid.UUID) (*models.Task, error) {
+	tasks, err := s.ListTasks(owner)
+	if err != nil {
+		return nil, errNotFound
+	}
+
+	for _, task := range tasks {
+		if task.ID == taskID {
 			return task, nil
 		}
 	}
@@ -32,16 +37,15 @@ func (s *Store) GetTaskByID(id uuid.UUID) (*models.Task, error) {
 	return nil, errNotFound
 }
 
-func (s *Store) CreateTask(title string) (*models.Task, error) {
-	id := uuid.New()
-	task := &models.Task{ID: id, Title: title}
-	s.db = append(s.db, task)
+func (s *Store) CreateTask(title string, owner uuid.UUID) (*models.Task, error) {
+	task := models.NewTask(title)
+	s.db[owner] = append(s.db[owner], task)
 
 	return task, nil
 }
 
-func (s *Store) UpdateTask(id uuid.UUID, title string) (*models.Task, error) {
-	task, err := s.GetTaskByID(id)
+func (s *Store) UpdateTask(id uuid.UUID, title string, owner uuid.UUID) (*models.Task, error) {
+	task, err := s.GetTaskByID(id, owner)
 	if err != nil {
 		return nil, err
 	}
@@ -50,8 +54,8 @@ func (s *Store) UpdateTask(id uuid.UUID, title string) (*models.Task, error) {
 	return task, nil
 }
 
-func (s *Store) ToggleStatus(id uuid.UUID) (*models.Task, error) {
-	task, err := s.GetTaskByID(id)
+func (s *Store) ToggleStatus(id uuid.UUID, owner uuid.UUID) (*models.Task, error) {
+	task, err := s.GetTaskByID(id, owner)
 	if err != nil {
 		return nil, err
 	}
@@ -60,10 +64,15 @@ func (s *Store) ToggleStatus(id uuid.UUID) (*models.Task, error) {
 	return task, nil
 }
 
-func (s *Store) DeleteTask(id uuid.UUID) (*models.Task, error) {
-	for i, task := range s.db {
+func (s *Store) DeleteTask(id uuid.UUID, owner uuid.UUID) (*models.Task, error) {
+	tasks, err := s.ListTasks(owner)
+	if err != nil {
+		return nil, err
+	}
+
+	for i, task := range tasks {
 		if task.ID == id {
-			s.db = append(s.db[:i], s.db[i+1:]...)
+			s.db[owner] = append(tasks[:i], tasks[i+1:]...)
 			return task, nil
 		}
 	}

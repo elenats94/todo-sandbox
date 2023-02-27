@@ -7,11 +7,17 @@ import (
 )
 
 func (app *App) list(c *gin.Context) {
-	tasks, _ := app.storage.ListTasks()
+	rawID, _ := c.Get("owner_id")
+	owner := uuid.MustParse(rawID.(string))
+
+	tasks, _ := app.storage.ListTasks(owner)
 	c.JSON(http.StatusOK, tasks)
 }
 
 func (app *App) get(c *gin.Context) {
+	rawID, _ := c.Get("owner_id")
+	owner := uuid.MustParse(rawID.(string))
+
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -20,7 +26,7 @@ func (app *App) get(c *gin.Context) {
 		return
 	}
 
-	task, err := app.storage.GetTaskByID(id)
+	task, err := app.storage.GetTaskByID(id, owner)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": err.Error(),
@@ -32,6 +38,9 @@ func (app *App) get(c *gin.Context) {
 }
 
 func (app *App) create(c *gin.Context) {
+	rawID, _ := c.Get("owner_id")
+	owner := uuid.MustParse(rawID.(string))
+
 	var data map[string]string
 
 	if err := c.ShouldBindJSON(&data); err != nil {
@@ -49,11 +58,14 @@ func (app *App) create(c *gin.Context) {
 		return
 	}
 
-	task, _ := app.storage.CreateTask(title)
+	task, _ := app.storage.CreateTask(title, owner)
 	c.JSON(http.StatusCreated, task)
 }
 
 func (app *App) edit(c *gin.Context) {
+	rawID, _ := c.Get("owner_id")
+	owner := uuid.MustParse(rawID.(string))
+
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -78,7 +90,7 @@ func (app *App) edit(c *gin.Context) {
 		return
 	}
 
-	task, err := app.storage.UpdateTask(id, title)
+	task, err := app.storage.UpdateTask(id, title, owner)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": err.Error(),
@@ -90,6 +102,9 @@ func (app *App) edit(c *gin.Context) {
 }
 
 func (app *App) toggleStatus(c *gin.Context) {
+	rawID, _ := c.Get("owner_id")
+	owner := uuid.MustParse(rawID.(string))
+
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -98,7 +113,7 @@ func (app *App) toggleStatus(c *gin.Context) {
 		return
 	}
 
-	task, err := app.storage.ToggleStatus(id)
+	task, err := app.storage.ToggleStatus(id, owner)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": err.Error(),
@@ -110,6 +125,9 @@ func (app *App) toggleStatus(c *gin.Context) {
 }
 
 func (app *App) remove(c *gin.Context) {
+	rawID, _ := c.Get("owner_id")
+	owner := uuid.MustParse(rawID.(string))
+
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -118,7 +136,7 @@ func (app *App) remove(c *gin.Context) {
 		return
 	}
 
-	task, err := app.storage.DeleteTask(id)
+	task, err := app.storage.DeleteTask(id, owner)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": err.Error(),
