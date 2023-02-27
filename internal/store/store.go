@@ -19,7 +19,11 @@ func NewStore() *Store {
 }
 
 func (s *Store) ListTasks(owner uuid.UUID) (models.Tasks, error) {
-	return s.db[owner], nil
+	if tasks, ok := s.db[owner]; ok {
+		return tasks, nil
+	}
+
+	return models.Tasks{}, nil
 }
 
 func (s *Store) GetTaskByID(taskID, owner uuid.UUID) (*models.Task, error) {
