@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
+	"todo-sandbox/internal/middleware"
 	"todo-sandbox/internal/store"
 )
 
@@ -23,6 +24,7 @@ func (app *App) routes() *gin.Engine {
 	r := gin.Default()
 
 	tasks := r.Group("/tasks")
+	tasks.Use(middleware.Identification())
 	{
 		tasks.GET("", app.list)
 		tasks.POST("", app.create)
