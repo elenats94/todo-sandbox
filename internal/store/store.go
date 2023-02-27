@@ -77,6 +77,9 @@ func (s *Store) DeleteTask(id uuid.UUID, owner uuid.UUID) (*models.Task, error) 
 	for i, task := range tasks {
 		if task.ID == id {
 			s.db[owner] = append(tasks[:i], tasks[i+1:]...)
+			if len(s.db[owner]) == 0 {
+				delete(s.db, owner)
+			}
 			return task, nil
 		}
 	}
