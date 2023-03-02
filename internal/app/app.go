@@ -26,7 +26,7 @@ func (app *App) routes() *gin.Engine {
 	r.Use(cors.Default())
 
 	tasks := r.Group("/tasks")
-	tasks.Use(middleware.Identification())
+	tasks.Use(middleware.CookieController())
 	{
 		tasks.GET("", app.list)
 		tasks.POST("", app.create)

@@ -5,7 +5,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func Identification() gin.HandlerFunc {
+func CookieController() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		owner, err := c.Cookie("owner_id")
 		if err != nil {
