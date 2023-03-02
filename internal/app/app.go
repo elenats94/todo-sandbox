@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"todo-sandbox/internal/middleware"
 	"todo-sandbox/internal/store"
@@ -22,6 +23,7 @@ func (app *App) Run(addr string) error {
 
 func (app *App) routes() *gin.Engine {
 	r := gin.Default()
+	r.Use(cors.Default())
 
 	tasks := r.Group("/tasks")
 	tasks.Use(middleware.Identification())
