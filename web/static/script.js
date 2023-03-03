@@ -1,86 +1,86 @@
-class Generator {
-    #idCounter = 0;
-
-    generate() {
-        const timestamp = Date.now().toString(36);
-        this.#idCounter++;
-        return `t${this.#idCounter.toString(36)}-${timestamp}`;
-    }
-}
-
-class Task {
-    constructor(id, title, status = false) {
-        this.id = id;
-        this.title = title;
-        this.status = status;
-    }
-}
-
 class TaskStore {
-    #idGen = new Generator();
-    #store = new Map();
+    #api = '';
 
-    constructor() {
-        this.#store = new Map();
+    constructor(apiUrl) {
+        this.#api = apiUrl;
     }
 
-    get storage() {
-        const store = [];
-        for (const task of this.#store.values()) {
-            store.push(task);
-        }
-
-        return store;
-    }
-
-    get(id) {
-        if (this.#store.has(id)) {
-            return this.#store.get(id);
-        }
-        return null;
-    }
-
-    add(title) {
-        if (title.length !== 0) {
-            const id = this.#idGen.generate();
-            const task = new Task(id, title);
-            this.#store.set(id, task);
-
-            return task;
+    async list() {
+        const response = await fetch(this.#api);
+        if (response.ok) {
+            return await response.json();
         }
     }
 
-    remove(id) {
-        return this.#store.delete(id);
+    async get(id) {
+        const response = await fetch(`${this.#api}/${id}`);
+        if (response.ok) {
+            return await response.json();
+        }
+
+        const data = await response.json();
+        throw new Error(data.error);
     }
 
-    toggleStatus(id) {
-        if (this.#store.has(id)) {
-            const task = this.#store.get(id);
-            task.status = !task.status;
+    async add(title) {
+        const response = await fetch(`${this.#api}`, {
+            method: "POST",
+            body: JSON.stringify({title: title})
+        });
+        if (response.ok) {
+            return await response.json();
         }
+        const data = await response.json();
+        throw new Error(data.error);
     }
 
-    edit(id, newTitle) {
-        if (this.#store.has(id)) {
-            const task = this.#store.get(id);
-            task.title = newTitle;
-            return task;
+    async remove(id) {
+        const response = await fetch(`${this.#api}/${id}`, {method: "DELETE"});
+        if (response.ok) {
+            return await response.json()
         }
+
+        const data = await response.json()
+        throw new Error(data.error)
+    }
+
+    async toggleStatus(id) {
+        const response = await fetch(`${this.#api}/${id}`, {method: "PATCH"});
+        if (response.ok) {
+            return await response.json();
+        }
+
+        const data = await response.json();
+        throw new Error(data.error);
+    }
+
+    async edit(id, title) {
+        const response = await fetch(`${this.#api}/${id}`, {
+            method: "PUT",
+            body: JSON.stringify({title: title})
+        })
+
+        if (response.ok) {
+            return await response.json();
+        }
+
+        const data = await response.json();
+        throw new Error(data.error);
     }
 }
 
 class App {
-    #ts = new TaskStore();
+    #ts = null;
 
-    constructor() {
+    constructor(apiUrl) {
+        this.#ts = new TaskStore(apiUrl)
+
         this.taskList = document.querySelector("#taskList");
         this.newTaskField = document.querySelector("#addTaskField");
 
         this.newTaskField.addEventListener('keydown', this.newTask);
         document.querySelector('#addTaskBtn').addEventListener("click", this.newTask);
     }
-
 
     newListItem(task) {
         const item = document.createElement('div');
@@ -136,6 +136,16 @@ class App {
         return this.taskList.querySelector(`.task-item[data-id="${id}"]`);
     }
 
+    listTasks() {
+        this.#ts.list()
+            .then(tasks => {
+                for (const task of tasks) {
+                    const item = this.newListItem(task);
+                    this.taskList.append(item);
+                }
+            })
+            .catch(err => console.log('Error occured:', err.message));
+    }
 
     newTask = (e) => {
         switch (e.type) {
@@ -148,62 +158,75 @@ class App {
             case 'click':
                 const title = this.newTaskField.value;
                 if (title !== '') {
-                    this.newTaskField.value = '';
-                    const task = this.#ts.add(title);
-                    const item = this.newListItem(task);
-                    this.taskList.appendChild(item);
+                    this.#ts.add(title)
+                        .then(task => {
+                            this.newTaskField.value = '';
+                            const item = this.newListItem(task);
+                            this.taskList.appendChild(item);
+                        })
+                        .catch(err => console.log('Error occurred:', err.message));
                 }
-                break;
         }
     }
 
     removeTask = (e) => {
-        const id = e.target.dataset.id
-        if (this.#ts.remove(id)) {
-            const task = this.getListItem(id);
-            this.taskList.removeChild(task);
-        }
+        this.#ts.remove(e.target.dataset.id)
+            .then(task => {
+                const item = this.getListItem(task.id);
+                this.taskList.removeChild(item);
+            })
+            .catch(err => console.log('Error occurred:', err.message));
     }
 
     toggleTaskStatus = (e) => {
-        const id = e.target.dataset.id;
-        this.#ts.toggleStatus(id);
-
-        this.getListItem(id).querySelector(`.btn-edit`).hidden = e.target.checked;
+        this.#ts.toggleStatus(e.target.dataset.id)
+            .then(task => {
+                this.getListItem(task.id).querySelector(`.btn-edit`).hidden = e.target.checked;
+            })
+            .catch(err => console.log('Error occurred:', err.message));
     }
 
     showEditField = (e) => {
-        const task = this.#ts.get(e.target.dataset.id);
+        this.#ts.get(e.target.dataset.id)
+            .then(task => {
+                const editField = document.createElement('input');
+                editField.type = 'text';
+                editField.classList.add('text-field');
+                editField.dataset.id = task.id;
+                editField.value = task.title;
+                editField.addEventListener('keydown', this.editTask);
 
-        const editField = document.createElement('input');
-        editField.type = 'text';
-        editField.classList.add('text-field');
-        editField.dataset.id = task.id;
-        editField.value = task.title;
-        editField.addEventListener('keydown', this.editTask);
+                const item = this.getListItem(task.id);
 
-        const item = this.getListItem(task.id);
-
-        item.replaceChildren(editField);
-        editField.select();
+                item.replaceChildren(editField);
+                editField.select();
+            })
+            .catch(err => console.log('Error occurred:', err.message));
     }
 
     editTask = (e) => {
         const id = e.target.dataset.id;
-        let task;
 
         switch (e.key) {
             case 'Enter':
-                const newTitle = e.target.value;
-                task = this.#ts.edit(id, newTitle);
-            // fallthrough
+                this.#ts.edit(id, e.target.value)
+                    .then(task => {
+                        this.taskList.replaceChild(this.newListItem(task), e.target.parentElement);
+                    })
+                    .catch(err => console.log('Error occurred:', err.message));
+                break;
             case 'Esc':
             case 'Escape':
-                task = this.#ts.get(id);
-                const updatedItem = this.newListItem(task);
-                this.taskList.replaceChild(updatedItem, e.target.parentElement);
+                this.#ts.get(id)
+                    .then(task => {
+                        this.taskList.replaceChild(this.newListItem(task), e.target.parentElement)
+                    })
+                    .catch(err => console.log('Error occurred:', err.message));
         }
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => new App());
+document.addEventListener('DOMContentLoaded', () => {
+    const app = new App('http://localhost:8080/tasks');
+    app.listTasks();
+});
