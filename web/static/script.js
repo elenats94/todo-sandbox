@@ -6,14 +6,18 @@ class TaskStore {
     }
 
     async list() {
-        const response = await fetch(this.#api);
+        const response = await fetch(this.#api, {
+            credentials: "include"
+        });
         if (response.ok) {
             return await response.json();
         }
     }
 
     async get(id) {
-        const response = await fetch(`${this.#api}/${id}`);
+        const response = await fetch(`${this.#api}/${id}`, {
+            credentials: "include"
+        });
         if (response.ok) {
             return await response.json();
         }
@@ -25,6 +29,7 @@ class TaskStore {
     async add(title) {
         const response = await fetch(`${this.#api}`, {
             method: "POST",
+            credentials: "include",
             body: JSON.stringify({title: title})
         });
         if (response.ok) {
@@ -35,7 +40,10 @@ class TaskStore {
     }
 
     async remove(id) {
-        const response = await fetch(`${this.#api}/${id}`, {method: "DELETE"});
+        const response = await fetch(`${this.#api}/${id}`, {
+            method: "DELETE",
+            credentials: "include"
+        });
         if (response.ok) {
             return await response.json()
         }
@@ -45,7 +53,10 @@ class TaskStore {
     }
 
     async toggleStatus(id) {
-        const response = await fetch(`${this.#api}/${id}`, {method: "PATCH"});
+        const response = await fetch(`${this.#api}/${id}`, {
+            method: "PATCH",
+            credentials: "include"
+        });
         if (response.ok) {
             return await response.json();
         }
@@ -57,6 +68,7 @@ class TaskStore {
     async edit(id, title) {
         const response = await fetch(`${this.#api}/${id}`, {
             method: "PUT",
+            credentials: "include",
             body: JSON.stringify({title: title})
         })
 

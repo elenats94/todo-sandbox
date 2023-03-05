@@ -23,7 +23,10 @@ func (app *App) Run(addr string) error {
 
 func (app *App) routes() *gin.Engine {
 	r := gin.Default()
-	r.Use(cors.Default())
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:63342"},
+		AllowCredentials: true,
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE"}}))
 
 	tasks := r.Group("/tasks")
 	tasks.Use(middleware.CookieController())
